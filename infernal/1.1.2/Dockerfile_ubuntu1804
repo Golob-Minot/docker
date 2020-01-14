@@ -1,0 +1,36 @@
+# cmalign
+#
+# VERSION               golob/infernal:1.1.2_bcw_0.3.1
+
+
+FROM      ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+python3-dev \
+python3-pip \
+wget \
+build-essential \
+&& apt-get clean \
+&& apt-get purge \
+&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN pip3 install boto3 awscli bucket_command_wrapper==0.3.1
+
+# CMALIGN stuff
+
+RUN mkdir /cmalign && mkdir /cmalign/src && mkdir /cmalign/data
+RUN cd /cmalign/src && \
+wget http://eddylab.org/infernal/infernal-1.1.2.tar.gz && \
+tar xzvf infernal-1.1.2.tar.gz && \
+cd /cmalign/src/infernal-1.1.2 && \
+./configure && make && make install && \
+cd /cmalign/src/infernal-1.1.2/easel && make install && \
+cd /cmalign/src/infernal-1.1.2/hmmer && make install && \
+cd / && rm -r /cmalign/src/
+RUN wget http://rfam.xfam.org/family/RF00177/cm -O /cmalign/data/SSU_rRNA_bacteria.cm
+
+RUN mkdir /fh && mkdir /app
+RUN mkdir -p /mnt/inputs/file && mkdir -p /mnt/outputs/file && mkdir /scratch
+WORKDIR /scratch

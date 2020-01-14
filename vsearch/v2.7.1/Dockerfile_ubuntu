@@ -1,0 +1,17 @@
+# VSEARCH
+#
+# VERSION               2.7.1_bcw_0.1.0
+
+FROM      ubuntu:16.04
+RUN mkdir /fh
+RUN mkdir /app
+RUN mkdir -p /mnt/inputs/file && mkdir -p /mnt/outputs/file && mkdir /scratch
+RUN apt-get update && apt-get install -y wget python3 python3-pip
+RUN pip3 install boto3 awscli bucket_command_wrapper==0.1.0
+RUN mkdir /vsearch && mkdir /vsearch/src
+WORKDIR /vsearch/src
+RUN wget https://github.com/torognes/vsearch/releases/download/v2.7.1/vsearch-2.7.1-linux-x86_64.tar.gz 
+RUN tar xzvf vsearch-2.7.1-linux-x86_64.tar.gz
+RUN cp vsearch-2.7.1-linux-x86_64/bin/* /usr/local/bin/
+WORKDIR /vsearch
+RUN rm -R /vsearch/src

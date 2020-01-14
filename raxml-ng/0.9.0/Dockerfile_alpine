@@ -1,0 +1,24 @@
+# raxml
+#
+# VERSION               golob/raxml-ng:0.9.0_bcw_0.3.0
+
+FROM      alpine:3.8
+RUN mkdir -p /mnt/inputs/file && mkdir -p /mnt/outputs/file && mkdir /scratch
+RUN mkdir -p /raxml/working
+RUN apk add --no-cache python3 bash make gcc build-base
+RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN pip3 install boto3 awscli bucket_command_wrapper==0.3.0
+
+# Get into the actual RAXML stuff
+RUN mkdir -p /raxml/src
+WORKDIR /raxml/src
+RUN wget https://github.com/amkozlov/raxml-ng/releases/download/0.9.0/raxml-ng_v0.9.0_linux_x86_64.zip
+RUN unzip raxml-ng_v0.9.0_linux_x86_64.zip 
+RUN cp raxml-ng /usr/local/bin
+
+# cleanup
+
+WORKDIR /raxml/working
+RUN apk del build-base gcc make
+RUN rm -r /raxml/src
+

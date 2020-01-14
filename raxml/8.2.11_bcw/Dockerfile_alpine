@@ -1,0 +1,36 @@
+# raxml
+#
+# VERSION               golob/raxml:8.2.11_bcw_0.3.0
+
+FROM      alpine:3.7
+RUN mkdir /fh && mkdir /app
+RUN mkdir -p /mnt/inputs/file && mkdir -p /mnt/outputs/file && mkdir /scratch
+RUN mkdir -p /raxml/working
+RUN apk add --no-cache python3 bash make gcc build-base
+RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN pip3 install boto3 awscli bucket_command_wrapper==0.3.0
+
+# Get into the actual RAXML stuff
+RUN mkdir -p /raxml/src
+WORKDIR /raxml/src
+RUN wget https://github.com/stamatak/standard-RAxML/archive/v8.2.11.tar.gz
+RUN tar xzvf v8.2.11.tar.gz
+WORKDIR /raxml/src/standard-RAxML-8.2.11
+
+# Pthreads versions
+RUN make -f Makefile.SSE3.PTHREADS.gcc
+RUN cp raxmlHPC-PTHREADS-SSE3 /usr/local/bin
+RUN rm *.o && make -f Makefile.AVX.PTHREADS.gcc
+RUN cp raxmlHPC-PTHREADS-AVX /usr/local/bin
+RUN rm *.o && make -f Makefile.PTHREADS.gcc
+RUN cp raxmlHPC-PTHREADS /usr/local/bin
+
+# Set the pthreads-SSE3 as the default
+RUN ln -s /usr/local/bin/raxmlHPC-PTHREADS-SSE3 /usr/local/bin/raxml
+
+# cleanup
+RUN mkdir -p /scratch/raxml
+WORKDIR /raxml/working
+RUN apk del build-base gcc make
+RUN rm -r /raxml/src
+

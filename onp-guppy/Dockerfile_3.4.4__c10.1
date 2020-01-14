@@ -1,0 +1,30 @@
+## golob/ont-guppy:3.4.4__c10.1
+
+FROM      nvidia/cuda:10.1-devel-ubuntu16.04
+# For singularity on the hutch cluster
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+wget \
+libcurl3 \
+libhdf5-cpp-11 \
+libzmq5 \
+libboost-atomic1.58.0 \
+libboost-chrono1.58.0 \
+libboost-date-time1.58.0 \
+libboost-filesystem1.58.0 \
+libboost-iostreams1.58.0 \
+libboost-program-options1.58.0 \
+libboost-regex1.58.0 \
+libboost-log1.58.0 \
+&& apt-get clean \
+&& apt-get purge \
+&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN wget https://mirror.oxfordnanoportal.com/software/analysis/ont_guppy_3.4.4-1~xenial_amd64.deb \
+&& dpkg -i --ignore-depends=nvidia-384,libcuda1-384 ont_guppy_3.4.4-1~xenial_amd64.deb \
+&& rm ont_guppy_3.4.4-1~xenial_amd64.deb
+
+
+RUN mkdir /scratch && mkdir /working
+RUN ln -s /opt/ont/guppy/bin/guppy_basecaller /usr/local/bin/guppy_basecaller

@@ -1,0 +1,38 @@
+# raxml
+#
+# VERSION               8.2.11_bcw_0.1.0b
+
+FROM      ubuntu:16.04
+RUN mkdir /fh && mkdir /app
+RUN mkdir -p /mnt/inputs/file && mkdir -p /mnt/outputs/file && mkdir /scratch
+RUN apt-get update && apt-get install -y wget git build-essential python3-pip
+RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN pip3 install boto3 awscli bucket_command_wrapper==0.1.0
+# Get into the actual RAXML stuff
+RUN mkdir /raxml && mkdir /raxml/src
+WORKDIR /raxml/src
+RUN wget https://github.com/stamatak/standard-RAxML/archive/v8.2.11.tar.gz
+RUN tar xzvf v8.2.11.tar.gz
+WORKDIR /raxml/src/standard-RAxML-8.2.11
+
+# Pthreads versions
+RUN make -f Makefile.SSE3.PTHREADS.gcc
+RUN cp raxmlHPC-PTHREADS-SSE3 /usr/local/bin
+RUN rm *.o && make -f Makefile.AVX.PTHREADS.gcc
+RUN cp raxmlHPC-PTHREADS-AVX /usr/local/bin
+RUN rm *.o && make -f Makefile.PTHREADS.gcc
+RUN cp raxmlHPC-PTHREADS /usr/local/bin
+RUN rm *.o && make -f Makefile.AVX.PTHREADS.gcc
+RUN cp raxmlHPC-PTHREADS-AVX /usr/local/bin
+RUN rm *.o && make -f Makefile.AVX.PTHREADS.gcc
+RUN cp raxmlHPC-PTHREADS-AVX /usr/local/bin
+
+# Set the pthreads / avx as the default
+RUN ln -s /usr/local/bin/raxmlHPC-PTHREADS-AVX /usr/local/bin/raxml
+
+# cleanup
+RUN mkdir -p /scratch/raxml
+WORKDIR /scratch/raxml
+RUN apt-get remove -y wget git build-essential
+RUN rm -r /raxml
+

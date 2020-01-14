@@ -1,0 +1,24 @@
+# VSEARCH
+#
+# VERSION               golob/vsearch:2.7.1_bcw_0.2.0
+
+FROM      alpine:3.7
+RUN mkdir /fh && mkdir /app
+RUN mkdir -p /mnt/inputs/file && mkdir -p /mnt/outputs/file && mkdir /scratch
+RUN apk add --no-cache python3==3.6.3-r9 bash make gcc build-base
+RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN pip3 install boto3 awscli bucket_command_wrapper==0.2.0
+
+RUN apk add --no-cache autoconf automake bzip2-dev zlib-dev
+RUN mkdir -p /vsearch/src
+WORKDIR /vsearch/src
+RUN wget https://github.com/torognes/vsearch/archive/v2.7.1.tar.gz
+RUN tar xzvf v2.7.1.tar.gz
+WORKDIR /vsearch/src/vsearch-2.7.1/
+RUN ./autogen.sh
+RUN ./configure
+RUN make && make install
+
+WORKDIR /vsearch
+RUN rm -R /vsearch/src
+RUN apk del build-base
