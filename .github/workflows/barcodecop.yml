@@ -5,6 +5,9 @@ on:
     tags: 
       - "barcodecop*"
 
+env:
+  IMAGE_NAME: barcodecop
+
 jobs:
 
   build:
@@ -14,4 +17,20 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file barcodecop/Dockerfile --tag barcodecop:$(date +%s)
+      run: docker build . --file barcodecop/Dockerfile --tag image
+
+    - name: Log into registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+    - name: Push image
+      run: |
+        IMAGE_ID=docker.pkg.github.com/golob_minot/$IMAGE_NAME
+
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+
+        docker tag image $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
