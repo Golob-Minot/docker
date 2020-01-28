@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Barcodecop Docker Image
 
 on:
   push:
