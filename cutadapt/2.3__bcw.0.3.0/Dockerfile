@@ -5,9 +5,13 @@
 FROM biocontainers/biocontainers:v1.1.0_cv2
 USER root
 # Create some mount points in the container for use by bucket-command-wrapper
-RUN mkdir -p /mnt/inputs/file && mkdir -p /mnt/outputs/file && mkdir /scratch && mkdir /working
-RUN mkdir -p /mnt/inputs/s3/ && mkdir -p /mnt/outputs/s3/
-RUN mkdir /fh/ && mkdir /app/
+RUN mkdir -p /mnt/inputs/file && \
+    mkdir -p /mnt/outputs/file && \
+    mkdir /scratch && \
+    mkdir /working && \
+    mkdir -p /mnt/inputs/s3/ && \
+    mkdir -p /mnt/outputs/s3/ && \
+    mkdir /fh/ && mkdir /app/
 
 # Install at least python3 (used by BCW). It's OK to change the specific version of python3 used. 
 RUN apt-get update && \
