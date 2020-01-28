@@ -23,9 +23,6 @@ RUN apt-get update && \
 # Since we are ONLY installing python3 link to it to make it the default python
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
-# Switch back from the root user
-USER biodocker
-
 # Install bucket_command_wrapper via pip, along with boto3 / awscli if we want to use AWS at all
 RUN pip3 install \
 awscli>=1.15.14 \
